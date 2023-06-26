@@ -45,6 +45,16 @@
               ],
               "outputHashing": "all"
             },
+            "production": {
+              
+              "fileReplacements": [
+                {
+                  "replace": "apps/mi-app/src/environments/environment.ts",
+                  "with": "apps/mi-app/src/environments/environment.prod.ts"
+                }
+              ]
+            },
+            
             "development": {
               "buildOptimizer": false,
               "optimization": false,
