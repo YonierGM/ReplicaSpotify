@@ -36,14 +36,12 @@ export class TrackService {
   getAllRandom$():Observable<any>{
     return this.httpCliente.get(`${this.URL}/tracks`)
     .pipe(
-      tap(data => console.log('dataV1', data)),
       mergeMap(({ data }: any) => this.skipById(data, 1)),
-      tap(data => console.log('dataV2', data)),
       catchError((err) => {
         const { status, statusText } = err
         console.log('Algo falló ', [status, statusText])
         return of([])
       })
-      )
+    )
   }
 }

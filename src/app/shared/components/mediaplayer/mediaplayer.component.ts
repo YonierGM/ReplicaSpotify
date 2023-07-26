@@ -1,6 +1,6 @@
 import { MultimediaService } from './../../services/multimedia.service';
 import { TracksModel } from '@core/models/tracks.models';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -10,31 +10,31 @@ import { Subscription } from 'rxjs';
 })
 
 export class MediaplayerComponent implements OnInit, OnDestroy{
-
+  @ViewChild('progressBar') progressBar: ElementRef = new ElementRef('')
   listObservers$: Array<Subscription> = []
-
-  constructor(private multimediaService: MultimediaService){}
-
-  mockCover: TracksModel = {
-    cover: 'https://phantom-marca.unidadeditorial.es/28c5699232b8df1ec8be1b23b70a86df/resize/1320/f/jpg/assets/multimedia/imagenes/2022/12/30/16723983861323.jpg',
-    album: 'Drake',
-    name: 'Goods plan',
-    url: '',
-    _id: 1
-  }
+  state: string = 'paused'
+  
+  constructor(public multimediaService: MultimediaService){}
 
   ngOnInit(): void {
-    const observer1$: Subscription = this.multimediaService.callback.subscribe(
-      (response: TracksModel) => {
-        console.log('recibiendo cancion...', response)
-        
-      }
-    )
+    const observer1$ = this.multimediaService.playerStatus$
+    .subscribe(status => this.state = status)
+
     this.listObservers$ = [observer1$]
   }
 
   ngOnDestroy(): void {
     this.listObservers$.forEach(u => u.unsubscribe()) // Desuscribir
     console.log('destruido')
+  }
+
+  handlePosition(event: MouseEvent): void {
+    const elNative: HTMLElement = this.progressBar.nativeElement
+    const { clientX } = event
+    const { x, width } = elNative.getBoundingClientRect()
+    const clickX = clientX - x //Identificamos el inicio de la barra de progreso
+    const percentageFromX = (clickX * 100) / width // Sacamos en valor porcentual la ubcacion del click a lo largo de la barra de progreso
+    console.log(`Click(X): ${percentageFromX}`)
+    this.multimediaService.seekAudio(percentageFromX)
   }
 }
